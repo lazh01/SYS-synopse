@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/DataProcessing.Monolith/.vs/DataProcessing.Monolith
+/DataProcessing.Monolith/DataProcessing.Api/obj
+/DataProcessing.Monolith/DataProcessing.Application/obj
+/DataProcessing.Monolith/DataProcessing.Domain/obj
+/DataProcessing.Monolith/DataProcessing.Domain/bin/Debug/net8.0
+/DataProcessing.Monolith/DataProcessing.Infrastructure/obj
