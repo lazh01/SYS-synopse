@@ -1,0 +1,67 @@
+﻿using OpenTelemetry;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using Serilog;
+using Serilog.Core;
+using System.Diagnostics;
+using System.Reflection;
+using Serilog.Sinks.Grafana.Loki;
+
+namespace DataProcessing.Monitoring;
+public static class MonitorService
+{
+    public static readonly string ServiceName = Assembly.GetCallingAssembly().GetName().Name ?? "UnknownService";
+    public static TracerProvider TracerProvider;
+    public static ActivitySource ActivitySource = new ActivitySource(ServiceName);
+
+
+    public static Serilog.ILogger Log => Serilog.Log.Logger;
+
+    static MonitorService()
+    {
+        var instanceId = Environment.MachineName;
+        TracerProvider = Sdk.CreateTracerProviderBuilder()
+            .AddConsoleExporter()
+            .AddZipkinExporter(config =>
+            {
+                config.Endpoint = new Uri(Environment.GetEnvironmentVariable("ZIPKIN_URL") ?? "http://localhost:9411/api/v2/spans");
+            })
+            .AddSource(ActivitySource.Name)
+            .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                .AddService(ServiceName)
+                .AddAttributes(new Dictionary<string, object>
+                {
+                    ["host.name"] = Environment.MachineName, // container or host name
+                    ["container.id"] = Environment.GetEnvironmentVariable("HOSTNAME") ?? "unknown",
+                })
+                )
+            .SetSampler(new AlwaysOnSampler())
+            .Build();
+
+
+        Serilog.Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("InstanceId", Environment.MachineName)
+            .Enrich.WithProperty("Service", ServiceName)
+            .WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341")
+            .WriteTo.GrafanaLoki(Environment.GetEnvironmentVariable("LOKI_URL") ?? "http://localhost:3100",
+                labels: new[] { new LokiLabel { Key = "service_name", Value = ServiceName } }
+            )
+            .CreateLogger();
+
+        ActivityListener listener = new ActivityListener
+        {
+            ShouldListenTo = s => true, // or filter by your ActivitySource name
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            ActivityStarted = activity =>
+            {
+                activity.SetTag("host.name", Environment.MachineName);
+                activity.SetTag("container.id", Environment.GetEnvironmentVariable("HOSTNAME") ?? "unknown");
+            },
+            ActivityStopped = activity => { }
+        };
+
+        ActivitySource.AddActivityListener(listener);
+    }
+}

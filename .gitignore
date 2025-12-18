@@ -32,3 +32,12 @@
 /DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Application/obj
 /DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Domain/obj
 /DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Infrastructure/obj
+/DataProcessing.Monitoring/.vs/DataProcessing.Monitoring
+/DataProcessing.Monitoring/DataProcessing.Monitoring/obj
+/DataProcessing.Distributed/DataProcessing.Monitoring/.vs
+/DataProcessing.Distributed/DataProcessing.Monitoring/DataProcessing.Monitoring/bin/Debug/net8.0
+/DataProcessing.Distributed/DataProcessing.Monitoring/DataProcessing.Monitoring/obj
+/DataProcessing.Distributed/ingestion/DataProcessing.Ingestion.Api/bin/Debug/net8.0
+/DataProcessing.Distributed/ingestion/DataProcessing.Ingestion.Application/bin/Debug/net8.0
+/DataProcessing.Monitoring/.vs/ProjectEvaluation
+/DataProcessing.Monitoring/DataProcessing.Monitoring/bin/Debug/net8.0

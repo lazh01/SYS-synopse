@@ -1,6 +1,7 @@
 ﻿using DataProcessing.Ingestion.Api.Models;
 using DataProcessing.Ingestion.Application.DTOs;
 using DataProcessing.Ingestion.Application.Interfaces;
+using DataProcessing.Monitoring;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataProcessing.Ingestion.Api.Controllers;
@@ -19,15 +20,23 @@ public class MeasurementsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Ingest([FromBody] MeasurementRequest request)
     {
+
+        using var activity = MonitorService.ActivitySource.StartActivity("Measurements.Ingest");
+
         if (string.IsNullOrWhiteSpace(request.Source))
             return BadRequest("Source cannot be empty");
+        
+        
 
-        // Set timestamp now
         var timestamp = DateTime.UtcNow;
 
-        Console.WriteLine($"[Ingestion] Received measurement: Source={request.Source}, Value={request.Value}, Timestamp={timestamp}");
+        activity?.SetTag("measurement.source", request.Source);
+        activity?.SetTag("measurement.value", request.Value);
+        MonitorService.Log.Information(
+            "[Ingestion] Received measurement: Source={Source}, Value={Value}, Timestamp={Timestamp}",
+            request.Source, request.Value, timestamp);
 
-        // Forward to Processing
+
         await _processing.SendMeasurementAsync(new MeasurementDto
         {
             Source = request.Source,

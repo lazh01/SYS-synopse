@@ -21,17 +21,23 @@ services:
       ConnectionStrings__ProcessingDb: "Server=sqlserver,1433;Database=ProcessingDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
     depends_on:
       - sqlserver
+      - zipkin
+      - seq
+      - loki
     ports:
       - "5000:80"
 
   ingestion:
     build:
-      context: ./ingestion
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ingestion/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ProcessingService__Url: "http://processing:80"
+      ZIPKIN_URL: "http://zipkin:9411/api/v2/spans"
+      LOKI_URL: "http://loki:3100"
+      SEQ_URL: "http://seq:5341"
     depends_on:
       - processing
     ports:
@@ -50,5 +56,58 @@ services:
     ports:
       - "5004:80"
 
+  seq:
+    image: datalust/seq
+    ports:
+      - "5341:5341"
+      - "5342:80"
+    environment:
+      SEQ_FIRSTRUN_ADMINPASSWORD: "password"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - rps_seq_data:/data
+  zipkin:
+    image: openzipkin/zipkin:3.4.1
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_HOST=zipkin-storage
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      - MYSQL_DB=zipkin
+    depends_on:
+      - zipkin-storage
+  zipkin-storage:
+    image: openzipkin/zipkin-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - zipkin_data:/mysql/data
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+    - "3000:3000"
+    environment:
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=admin
+    - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+    - grafana_data:/var/lib/grafana
+    depends_on:
+    - seq
+    - zipkin
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+
 volumes:
   sqlserver-data:
+  rps_seq_data:
+  zipkin_data:
+  grafana_data:  
+  loki_data:  

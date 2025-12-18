@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataProcessing.Ingestion.Application\DataProcessing.Ingestion.Application.csproj" />
+    <ProjectReference Include="..\..\DataProcessing.Monitoring\DataProcessing.Monitoring\DataProcessing.Monitoring.csproj" />
   </ItemGroup>
 
 </Project>
