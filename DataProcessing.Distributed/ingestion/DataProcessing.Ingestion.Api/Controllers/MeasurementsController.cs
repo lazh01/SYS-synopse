@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DataProcessing.Ingestion.Api.Models;
+﻿using DataProcessing.Ingestion.Api.Models;
+using DataProcessing.Ingestion.Application.DTOs;
+using DataProcessing.Ingestion.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DataProcessing.Ingestion.Api.Controllers;
 
@@ -7,17 +9,31 @@ namespace DataProcessing.Ingestion.Api.Controllers;
 [Route("api/[controller]")]
 public class MeasurementsController : ControllerBase
 {
-    [HttpPost]
-    public IActionResult Ingest([FromBody] MeasurementRequest request)
+    private readonly IProcessingClient _processing;
+
+    public MeasurementsController(IProcessingClient processing)
     {
-        // Validate minimal
+        _processing = processing;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Ingest([FromBody] MeasurementRequest request)
+    {
         if (string.IsNullOrWhiteSpace(request.Source))
             return BadRequest("Source cannot be empty");
 
-        // Log for now
-        Console.WriteLine($"[Ingestion] Received measurement: Source={request.Source}, Value={request.Value}, Timestamp={DateTime.UtcNow}");
+        // Set timestamp now
+        var timestamp = DateTime.UtcNow;
 
-        // Forwarding will be implemented later
+        Console.WriteLine($"[Ingestion] Received measurement: Source={request.Source}, Value={request.Value}, Timestamp={timestamp}");
+
+        // Forward to Processing
+        await _processing.SendMeasurementAsync(new MeasurementDto
+        {
+            Source = request.Source,
+            Value = request.Value,
+            Timestamp = timestamp
+        });
 
         return Accepted();
     }
