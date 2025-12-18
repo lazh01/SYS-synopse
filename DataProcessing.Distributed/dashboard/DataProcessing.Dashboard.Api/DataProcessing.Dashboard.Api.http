@@ -1,0 +1,6 @@
+@DataProcessing.Dashboard.Api_HostAddress = http://localhost:5073
+
+GET {{DataProcessing.Dashboard.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

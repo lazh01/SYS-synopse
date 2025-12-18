@@ -14,8 +14,7 @@ public class SensorAggregate
     public double Min { get; set; } = double.MaxValue;
     public double Max { get; set; } = double.MinValue;
     public double Sum { get; set; }
-
-    public double Average => Count == 0 ? 0 : Sum / Count;
+    public double Average { get; set; }
 
     public void Apply(Measurement m)
     {
@@ -23,5 +22,6 @@ public class SensorAggregate
         Sum += m.Value;
         Min = Math.Min(Min, m.Value);
         Max = Math.Max(Max, m.Value);
+        Average = Sum / Count;
     }
 }

@@ -27,3 +27,8 @@
 /DataProcessing.Distributed/processing/DataProcessing.Processing.Domain/obj
 /DataProcessing.Distributed/processing/DataProcessing.Processing.Infrastructure/bin/Debug/net8.0
 /DataProcessing.Distributed/processing/DataProcessing.Processing.Infrastructure/obj
+/DataProcessing.Distributed/dashboard/.vs/ProjectEvaluation
+/DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Api/obj
+/DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Application/obj
+/DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Domain/obj
+/DataProcessing.Distributed/dashboard/DataProcessing.Dashboard.Infrastructure/obj

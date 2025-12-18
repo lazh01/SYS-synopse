@@ -36,6 +36,19 @@ services:
       - processing
     ports:
       - "5002:80"
+  
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__ProcessingDb: "Server=sqlserver,1433;Database=ProcessingDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    ports:
+      - "5004:80"
 
 volumes:
   sqlserver-data:
