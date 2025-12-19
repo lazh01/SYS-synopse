@@ -1,5 +1,6 @@
 using DataProcessing.Dashboard.Infrastructure;
-
+using DataProcessing.Monitoring;
+_ = MonitorService.ServiceName;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

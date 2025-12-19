@@ -1,7 +1,8 @@
 using DataProcessing.Processing.Infrastructure;
 using DataProcessing.Processing.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-
+using DataProcessing.Monitoring;
+_ = MonitorService.ServiceName;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

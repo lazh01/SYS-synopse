@@ -1,5 +1,4 @@
 version: "3.9"
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -10,7 +9,6 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
-
   processing:
     build:
       context: .
@@ -29,7 +27,7 @@ services:
       - loki
     ports:
       - "5000:80"
-
+      - "9467:9464"
   ingestion:
     build:
       context: .
@@ -48,6 +46,7 @@ services:
       - loki
     ports:
       - "5002:80"
+      - "9468:9464"
   
   dashboard:
     build:
@@ -67,7 +66,7 @@ services:
       - loki
     ports:
       - "5004:80"
-
+      - "9469:9464"
   seq:
     image: datalust/seq
     ports:
@@ -96,6 +95,20 @@ services:
       - "3306:3306"
     volumes:
       - zipkin_data:/mysql/data
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - processing
+      - ingestion
+      - dashboard
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -109,17 +122,17 @@ services:
     depends_on:
     - seq
     - zipkin
-
+    - prometheus
   loki:
     image: grafana/loki:latest
     ports:
       - "3100:3100"
     volumes:
       - loki_data:/loki
-
 volumes:
   sqlserver-data:
   rps_seq_data:
   zipkin_data:
   grafana_data:  
-  loki_data:  
+  loki_data:
+  prometheus_data:

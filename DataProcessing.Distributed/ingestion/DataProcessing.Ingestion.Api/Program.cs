@@ -1,5 +1,8 @@
 using DataProcessing.Ingestion.Application.Interfaces;
 using DataProcessing.Ingestion.Application.Services;
+using DataProcessing.Monitoring;
+
+_ = MonitorService.ServiceName;
 
 var builder = WebApplication.CreateBuilder(args);
 
