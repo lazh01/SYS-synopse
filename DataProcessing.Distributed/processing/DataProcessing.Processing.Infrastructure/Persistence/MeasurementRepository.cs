@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DataProcessing.Processing.Application.Interfaces;
 using DataProcessing.Processing.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
+using DataProcessing.Monitoring;
 namespace DataProcessing.Processing.Infrastructure.Persistence;
 
 public class MeasurementRepository : IMeasurementRepository
@@ -21,6 +21,9 @@ public class MeasurementRepository : IMeasurementRepository
 
     public async Task AddMeasurementAsync(Measurement measurement)
     {
+        using var activity = MonitorService.ActivitySource.StartActivity("Repository.AddMeasurement");
+        activity?.SetTag("measurement.source", measurement.Source);
+
         _context.Measurements.Add(measurement);
 
         // Update or create aggregate
@@ -36,6 +39,9 @@ public class MeasurementRepository : IMeasurementRepository
         aggregate.Apply(measurement);
 
         await _context.SaveChangesAsync();
+
+        MonitorService.Log.Information(
+        "[Repository] Added measurement for {Source}, updated aggregates", measurement.Source);
     }
 
     public async Task<IReadOnlyList<SensorAggregate>> GetAggregatesAsync()

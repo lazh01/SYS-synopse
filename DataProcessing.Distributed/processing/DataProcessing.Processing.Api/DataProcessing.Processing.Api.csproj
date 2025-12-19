@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DataProcessing.Processing.Application\DataProcessing.Processing.Application.csproj" />
     <ProjectReference Include="..\DataProcessing.Processing.Infrastructure\DataProcessing.Processing.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\DataProcessing.Monitoring\DataProcessing.Monitoring\DataProcessing.Monitoring.csproj" />
   </ItemGroup>
 
 </Project>

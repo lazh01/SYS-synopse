@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using DataProcessing.Processing.Application.Interfaces;
 using DataProcessing.Processing.Domain.Entities;
+using DataProcessing.Monitoring;
 
 namespace DataProcessing.Processing.Application.UseCases;
 
@@ -20,6 +21,25 @@ public class IngestMeasurementUseCase
 
     public async Task ExecuteAsync(Measurement measurement)
     {
-        await _repository.AddMeasurementAsync(measurement);
+
+        using var activity = MonitorService.ActivitySource.StartActivity("UseCase.IngestMeasurement");
+        activity?.SetTag("measurement.source", measurement.Source);
+        activity?.SetTag("measurement.value", measurement.Value);
+
+        try
+        {
+            await _repository.AddMeasurementAsync(measurement);
+            MonitorService.Log.Information(
+                "[UseCase] Successfully ingested measurement: {Source}={Value}",
+                measurement.Source, measurement.Value);
+        }
+        catch (Exception ex)
+        {
+            activity?.SetTag("error", true);
+            MonitorService.Log.Error(ex,
+                "[UseCase] Failed to ingest measurement: {Source}={Value}",
+                measurement.Source, measurement.Value);
+            throw;
+        }
     }
 }

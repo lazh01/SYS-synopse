@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DataProcessing.Dashboard.Application\DataProcessing.Dashboard.Application.csproj" />
     <ProjectReference Include="..\DataProcessing.Dashboard.Domain\DataProcessing.Dashboard.Domain.csproj" />
+    <ProjectReference Include="..\..\DataProcessing.Monitoring\DataProcessing.Monitoring\DataProcessing.Monitoring.csproj" />
   </ItemGroup>
 
 </Project>

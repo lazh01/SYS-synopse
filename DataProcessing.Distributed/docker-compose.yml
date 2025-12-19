@@ -13,12 +13,15 @@ services:
 
   processing:
     build:
-      context: ./processing
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./processing/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ConnectionStrings__ProcessingDb: "Server=sqlserver,1433;Database=ProcessingDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
+      ZIPKIN_URL: "http://zipkin:9411/api/v2/spans"
+      LOKI_URL: "http://loki:3100"
+      SEQ_URL: "http://seq:5341"
     depends_on:
       - sqlserver
       - zipkin
@@ -40,19 +43,28 @@ services:
       SEQ_URL: "http://seq:5341"
     depends_on:
       - processing
+      - zipkin
+      - seq
+      - loki
     ports:
       - "5002:80"
   
   dashboard:
     build:
-      context: ./dashboard
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./dashboard/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ConnectionStrings__ProcessingDb: "Server=sqlserver,1433;Database=ProcessingDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
+      ZIPKIN_URL: "http://zipkin:9411/api/v2/spans"
+      LOKI_URL: "http://loki:3100"
+      SEQ_URL: "http://seq:5341"
     depends_on:
       - sqlserver
+      - zipkin
+      - seq
+      - loki
     ports:
       - "5004:80"
 

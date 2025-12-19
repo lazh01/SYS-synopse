@@ -8,20 +8,25 @@ EXPOSE 5005
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj files and restore
-COPY ["DataProcessing.Dashboard.Api/DataProcessing.Dashboard.Api.csproj", "DataProcessing.Dashboard.Api/"]
-COPY ["DataProcessing.Dashboard.Application/DataProcessing.Dashboard.Application.csproj", "DataProcessing.Dashboard.Application/"]
-COPY ["DataProcessing.Dashboard.Domain/DataProcessing.Dashboard.Domain.csproj", "DataProcessing.Dashboard.Domain/"]
-COPY ["DataProcessing.Dashboard.Infrastructure/DataProcessing.Dashboard.Infrastructure.csproj", "DataProcessing.Dashboard.Infrastructure/"]
-RUN dotnet restore "DataProcessing.Dashboard.Api/DataProcessing.Dashboard.Api.csproj"
+# Copy only the csproj files first, keeping the folder structure
+COPY ["dashboard/DataProcessing.Dashboard.Api/DataProcessing.Dashboard.Api.csproj", "dashboard/DataProcessing.Dashboard.Api/"]
+COPY ["dashboard/DataProcessing.Dashboard.Application/DataProcessing.Dashboard.Application.csproj", "dashboard/DataProcessing.Dashboard.Application/"]
+COPY ["dashboard/DataProcessing.Dashboard.Domain/DataProcessing.Dashboard.Domain.csproj", "dashboard/DataProcessing.Dashboard.Domain/"]
+COPY ["dashboard/DataProcessing.Dashboard.Infrastructure/DataProcessing.Dashboard.Infrastructure.csproj", "dashboard/DataProcessing.Dashboard.Infrastructure/"]
+COPY ["DataProcessing.Monitoring/DataProcessing.Monitoring/DataProcessing.Monitoring.csproj", "DataProcessing.Monitoring/DataProcessing.Monitoring/"]
 
-# Copy all source files
-COPY . .
+# Restore dependencies
+RUN dotnet restore "dashboard/DataProcessing.Dashboard.Api/DataProcessing.Dashboard.Api.csproj"
 
-WORKDIR "/src/DataProcessing.Dashboard.Api"
+# Copy all source files (preserve the folder structure)
+COPY dashboard/ dashboard/
+COPY DataProcessing.Monitoring/ DataProcessing.Monitoring/
+
+WORKDIR "/src/dashboard/DataProcessing.Dashboard.Api"
 
 # Build and publish
 RUN dotnet build "DataProcessing.Dashboard.Api.csproj" -c Release -o /app/build
+
 FROM build AS publish
 RUN dotnet publish "DataProcessing.Dashboard.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 

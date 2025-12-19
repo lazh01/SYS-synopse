@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataProcessing.Dashboard.Infrastructure\DataProcessing.Dashboard.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\DataProcessing.Monitoring\DataProcessing.Monitoring\DataProcessing.Monitoring.csproj" />
   </ItemGroup>
 
 </Project>
