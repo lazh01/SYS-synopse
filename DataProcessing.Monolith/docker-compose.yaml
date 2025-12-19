@@ -72,9 +72,12 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana-monolith-data:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning
     depends_on:
-      - seq-monolith
-      - zipkin-monolith
+    - seq-monolith
+    - zipkin-monolith
+    - prometheus-monolith
+    - loki-monolith
 
   loki-monolith:
     image: grafana/loki:latest
