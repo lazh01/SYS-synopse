@@ -1,4 +1,8 @@
+using DataProcessing.Monitoring;
 using SensorData.Infrastructure;
+
+// Force MonitorService initialization (starts Prometheus listener, logging, tracing)
+_ = MonitorService.ServiceName;
 
 var builder = WebApplication.CreateBuilder(args);
 

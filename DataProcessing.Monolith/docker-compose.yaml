@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:80"
+      - "9464:9464"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
@@ -81,6 +82,19 @@ services:
       - "3101:3100"
     volumes:
       - loki-monolith-data:/loki
+  
+  prometheus-monolith:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-monolith-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - dataprocessing
 
 volumes:
   sqlserver-monolith-data:
@@ -88,3 +102,4 @@ volumes:
   zipkin-monolith-data:
   grafana-monolith-data:
   loki-monolith-data:
+  prometheus-monolith-data:  

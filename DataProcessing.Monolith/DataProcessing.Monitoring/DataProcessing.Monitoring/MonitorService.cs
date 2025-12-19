@@ -1,5 +1,6 @@
 ﻿using OpenTelemetry;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using Serilog;
 using Serilog.Core;
@@ -8,18 +9,19 @@ using System.Reflection;
 using Serilog.Sinks.Grafana.Loki;
 
 namespace DataProcessing.Monitoring;
+
 public static class MonitorService
 {
     public static readonly string ServiceName = Assembly.GetCallingAssembly().GetName().Name ?? "UnknownService";
     public static TracerProvider TracerProvider;
+    public static MeterProvider MeterProvider;  // ADD THIS LINE
     public static ActivitySource ActivitySource = new ActivitySource(ServiceName);
-
-
     public static Serilog.ILogger Log => Serilog.Log.Logger;
 
     static MonitorService()
     {
         var instanceId = Environment.MachineName;
+
         TracerProvider = Sdk.CreateTracerProviderBuilder()
             .AddConsoleExporter()
             .AddZipkinExporter(config =>
@@ -31,13 +33,30 @@ public static class MonitorService
                 .AddService(ServiceName)
                 .AddAttributes(new Dictionary<string, object>
                 {
-                    ["host.name"] = Environment.MachineName, // container or host name
+                    ["host.name"] = Environment.MachineName,
                     ["container.id"] = Environment.GetEnvironmentVariable("HOSTNAME") ?? "unknown",
                 })
-                )
+            )
             .SetSampler(new AlwaysOnSampler())
             .Build();
 
+        // Add Prometheus metrics with CPU, memory, GC metrics
+        MeterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddRuntimeInstrumentation()   // GC, memory, threads, exceptions
+            .AddProcessInstrumentation()   // CPU and process memory metrics
+            .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                .AddService(ServiceName)
+                .AddAttributes(new Dictionary<string, object>
+                {
+                    ["host.name"] = Environment.MachineName,
+                    ["container.id"] = Environment.GetEnvironmentVariable("HOSTNAME") ?? "unknown",
+                })
+            )
+            .AddPrometheusHttpListener(options =>
+            {
+                options.UriPrefixes = new string[] { "http://+:9464/" };
+            })
+            .Build();
 
         Serilog.Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
@@ -52,7 +71,7 @@ public static class MonitorService
 
         ActivityListener listener = new ActivityListener
         {
-            ShouldListenTo = s => true, // or filter by your ActivitySource name
+            ShouldListenTo = s => true,
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             ActivityStarted = activity =>
             {
@@ -61,7 +80,6 @@ public static class MonitorService
             },
             ActivityStopped = activity => { }
         };
-
         ActivitySource.AddActivityListener(listener);
     }
 }
