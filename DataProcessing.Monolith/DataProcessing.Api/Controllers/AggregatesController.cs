@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SensorData.Application.Interfaces;
+using DataProcessing.Monitoring;
+using System.Diagnostics;
 
 namespace SensorData.Api.Controllers;
 
@@ -17,7 +19,23 @@ public class AggregatesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var aggregates = await _repository.GetAllAsync();
-        return Ok(aggregates);
+        using var activity = MonitorService.ActivitySource.StartActivity("AggregatesController.Get");
+
+        try
+        {
+            var aggregates = await _repository.GetAllAsync();
+
+            MonitorService.Log.Information(
+                "[Aggregates] Retrieved {Count} aggregates at {Time}",
+                aggregates.Count, DateTime.UtcNow);
+
+            return Ok(aggregates);
+        }
+        catch (Exception ex)
+        {
+            activity?.SetTag("error", true);
+            MonitorService.Log.Error(ex, "[Aggregates] Failed to retrieve aggregates");
+            throw;
+        }
     }
 }

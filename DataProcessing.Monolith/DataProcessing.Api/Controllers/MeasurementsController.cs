@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SensorData.Api.Models;
 using SensorData.Application.Interfaces;
 using SensorData.Domain.Entities;
+using SensorData.Api.Models;
+using DataProcessing.Monitoring;
+using System.Diagnostics;
 
 namespace SensorData.Api.Controllers;
 
@@ -19,14 +21,30 @@ public class MeasurementsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Ingest(IngestMeasurementRequest request)
     {
-        var measurement = new Measurement(
-            request.Source,
-            request.Value,
-            DateTime.UtcNow
-        );
+        using var activity = MonitorService.ActivitySource.StartActivity("MeasurementsController.Ingest");
 
-        await _useCase.ExecuteAsync(measurement);
+        try
+        {
+            var measurement = new Measurement(
+                request.Source,
+                request.Value,
+                DateTime.UtcNow
+            );
 
-        return Accepted();
+            MonitorService.Log.Information(
+                "[Measurements] Ingesting measurement: {Source}={Value}",
+                measurement.Source, measurement.Value);
+
+            await _useCase.ExecuteAsync(measurement);
+
+            return Accepted();
+        }
+        catch (Exception ex)
+        {
+            activity?.SetTag("error", true);
+            MonitorService.Log.Error(ex, "[Measurements] Failed to ingest measurement: {Source}={Value}",
+                request.Source, request.Value);
+            throw;
+        }
     }
 }

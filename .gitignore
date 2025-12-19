@@ -41,3 +41,6 @@
 /DataProcessing.Distributed/ingestion/DataProcessing.Ingestion.Application/bin/Debug/net8.0
 /DataProcessing.Monitoring/.vs/ProjectEvaluation
 /DataProcessing.Monitoring/DataProcessing.Monitoring/bin/Debug/net8.0
+/DataProcessing.Monolith/DataProcessing.Monitoring/.vs
+/DataProcessing.Monolith/DataProcessing.Monitoring/DataProcessing.Monitoring/bin/Debug/net8.0
+/DataProcessing.Monolith/DataProcessing.Monitoring/DataProcessing.Monitoring/obj
