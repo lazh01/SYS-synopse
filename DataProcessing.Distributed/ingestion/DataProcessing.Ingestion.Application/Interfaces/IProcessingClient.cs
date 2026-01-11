@@ -8,5 +8,5 @@ using DataProcessing.Ingestion.Application.DTOs;
 namespace DataProcessing.Ingestion.Application.Interfaces;
 public interface IProcessingClient
 {
-    Task SendMeasurementAsync(MeasurementDto measurement);
+    void SendMeasurementAsync(MeasurementDto measurement);
 }

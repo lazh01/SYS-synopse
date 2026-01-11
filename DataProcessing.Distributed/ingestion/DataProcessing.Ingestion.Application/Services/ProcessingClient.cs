@@ -13,7 +13,7 @@ namespace DataProcessing.Ingestion.Application.Services
             _http = http;
         }
 
-        public async Task SendMeasurementAsync(MeasurementDto measurement)
+        public void SendMeasurementAsync(MeasurementDto measurement)
         {
 
             using var activity = MonitorService.ActivitySource.StartActivity("ProcessingClient.SendMeasurement");
@@ -23,7 +23,9 @@ namespace DataProcessing.Ingestion.Application.Services
 
             try
             {
-                var response = await _http.PostAsJsonAsync("/api/measurements", measurement);
+                var response = _http
+                    .PostAsJsonAsync("/api/measurements", measurement)
+                    .Result; // ⛔ BLOKERER tråden
                 response.EnsureSuccessStatusCode();
 
                 MonitorService.Log.Information(

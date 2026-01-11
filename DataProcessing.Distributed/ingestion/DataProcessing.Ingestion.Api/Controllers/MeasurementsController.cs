@@ -25,7 +25,7 @@ public class MeasurementsController : ControllerBase
     }
 
     [HttpPost("sync")]
-    public async Task<IActionResult> IngestSync([FromBody] MeasurementRequest request)
+    public IActionResult IngestSync([FromBody] MeasurementRequest request)
     {
         using var activity = MonitorService.ActivitySource.StartActivity("Measurements.IngestSync");
 
@@ -42,7 +42,7 @@ public class MeasurementsController : ControllerBase
 
         try
         {
-            await _syncProcessing.SendMeasurementAsync(new MeasurementDto
+            _syncProcessing.SendMeasurementAsync(new MeasurementDto
             {
                 Source = request.Source,
                 Value = request.Value,
