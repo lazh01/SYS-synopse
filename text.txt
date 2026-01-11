@@ -1,0 +1,42 @@
+#38 5.260   Restored /src/ingestion/DataProcessing.Ingestion.Api/DataProcessing.Ingestion.Api.csproj (in 4.01 sec).
+#38 DONE 5.4s
+
+#42 [ingestion build  9/12] COPY ingestion/ ingestion/
+#42 ...
+
+#41 [processing build  8/12] RUN dotnet restore "processing/DataProcessing.Processing.Api/DataProcessing.Processing.Api.csproj"
+#41 15.44   Retrying 'FindPackagesByIdAsync' for source 'https://api.nuget.org/v3-flatcontainer/microsoft.openapi/index.json'.
+#41 15.44   Input/output error : '/root/.local/share/NuGet/http-cache/670c1461c29885f9aa22c281d8b7da90845b38e4$ps:_api.nuget.org_v3_index.json/list_microsoft.openapi.dat-new'
+#41 15.49 Bus error (core dumped)
+#41 ERROR: error committing pacgm3gpa2fb40t4c5lqoyrx8: write /var/lib/docker/buildkit/containerd-overlayfs/metadata_v2.db: input/output error
+
+#42 [ingestion build  9/12] COPY ingestion/ ingestion/
+#42 ERROR: write /var/lib/docker/buildkit/containerd-overlayfs/metadata_v2.db: input/output error
+------
+ > [processing build  8/12] RUN dotnet restore "processing/DataProcessing.Processing.Api/DataProcessing.Processing.Api.csproj":
+0.704   Determining projects to restore...
+4.166   Restored /src/DataProcessing.Monitoring/DataProcessing.Monitoring/DataProcessing.Monitoring.csproj (in 2.92 sec).
+15.44   Retrying 'FindPackagesByIdAsync' for source 'https://api.nuget.org/v3-flatcontainer/microsoft.openapi/index.json'.
+15.44   Input/output error : '/root/.local/share/NuGet/http-cache/670c1461c29885f9aa22c281d8b7da90845b38e4$ps:_api.nuget.org_v3_index.json/list_microsoft.openapi.dat-new'
+15.49 Bus error (core dumped)
+------
+------
+ > [ingestion build  9/12] COPY ingestion/ ingestion/:
+------
+Dockerfile:23
+
+--------------------
+
+  21 |
+
+  22 |     # Copy all source files (preserve the folder structure)
+
+  23 | >>> COPY ingestion/ ingestion/
+
+  24 |     COPY DataProcessing.Monitoring/ DataProcessing.Monitoring/
+
+  25 |
+
+--------------------
+
+target ingestion: failed to solve: Internal: write /var/lib/docker/buildkit/containerd-overlayfs/metadata_v2.db: input/output error
