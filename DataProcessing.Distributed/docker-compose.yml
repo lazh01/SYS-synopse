@@ -17,11 +17,16 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ConnectionStrings__ProcessingDb: "Server=sqlserver,1433;Database=ProcessingDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True;"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "guest"
+      RabbitMQ__Password: "guest"
       ZIPKIN_URL: "http://zipkin:9411/api/v2/spans"
       LOKI_URL: "http://loki:3100"
       SEQ_URL: "http://seq:5341"
     depends_on:
       - sqlserver
+      - rabbitmq
       - zipkin
       - seq
       - loki
@@ -36,11 +41,16 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ProcessingService__Url: "http://processing:80"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "guest"
+      RabbitMQ__Password: "guest"
       ZIPKIN_URL: "http://zipkin:9411/api/v2/spans"
       LOKI_URL: "http://loki:3100"
       SEQ_URL: "http://seq:5341"
     depends_on:
       - processing
+      - rabbitmq
       - zipkin
       - seq
       - loki
@@ -131,6 +141,16 @@ services:
       - "3100:3100"
     volumes:
       - loki_data:/loki
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 volumes:
   sqlserver-data:
   rps_seq_data:
@@ -138,3 +158,4 @@ volumes:
   grafana_data:  
   loki_data:
   prometheus_data:
+  rabbitmq_data:
